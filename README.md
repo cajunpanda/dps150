@@ -47,6 +47,10 @@ description "AT32 Virtual Com Port"), normally `/dev/ttyACM0` on Linux. The tool
 auto-detects it. Override with `--port <path|by-id-substring>` or the `$DPS150_PORT` env
 var. Run `./dps150.py ports` to list candidates (the DPS-150 is marked `<- DPS-150`).
 
+`--port` matches a full device path (`/dev/ttyACM0`) or a substring of the
+`/dev/serial/by-id` link name (`AT32`). A bare `ttyACM0` is neither and will not match, so
+use the full `/dev/ttyACM0`.
+
 Each run opens the port, does the connect handshake, does its work, and disconnects. The
 handshake only starts and stops the telemetry stream; it does not change the output state
 or stored setpoints.

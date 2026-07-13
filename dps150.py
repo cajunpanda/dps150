@@ -30,7 +30,9 @@ Usage examples:
   dps150.py ports                  # list candidate serial ports
 
 Port selection order: --port arg, then $DPS150_PORT, then auto-detect the
-AT32 CDC device. --port also accepts a /dev/serial/by-id substring.
+AT32 CDC device. --port takes a full device path (e.g. /dev/ttyACM0) or a
+substring of the /dev/serial/by-id link name (e.g. AT32). A bare "ttyACM0" is
+neither, so it will not match; use the full /dev/ttyACM0 or run `dps150.py ports`.
 """
 
 import argparse
@@ -280,9 +282,12 @@ class DPS150:
         return state
 
     def get_info(self):
+        # Request the model/hw/fw strings, then a full state snapshot, so `info` prints
+        # complete, correct state. Without request_all the output/setpoint fields never
+        # arrive and fall back to defaults (output shows "off", setpoints 0.000).
         for t in (T_MODEL, T_HWVER, T_FWVER):
             self._send(CMD_GET, t, b"")
-        return self.read_state(window=0.6, request_all=False)
+        return self.read_state(window=0.6, request_all=True)
 
     # setters
     def set_voltage(self, v):
@@ -535,7 +540,8 @@ def cmd_release(args):
 # ---- argparse ---------------------------------------------------------------
 def build_parser():
     p = argparse.ArgumentParser(prog="dps150.py", description=__doc__.split("\n")[0])
-    p.add_argument("--port", help="serial device path or /dev/serial/by-id substring")
+    p.add_argument("--port", help="full device path (e.g. /dev/ttyACM0) or /dev/serial/by-id "
+                                   "substring (e.g. AT32); a bare 'ttyACM0' will not match")
     p.add_argument("--no-rtscts", action="store_true",
                    help="disable hardware flow control (try if reads hang)")
     p.add_argument("--timeout", type=float, default=1.0, help="serial read timeout (s)")
