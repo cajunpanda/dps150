@@ -17,7 +17,7 @@ OVP/OCP/OPP/OTP/LVP trip points; read energy metering and firmware/model info.
 ## Install
 
 ```sh
-git clone https://github.com/<you>/dps150
+git clone https://github.com/cajunpanda/dps150
 cd dps150
 pip install pyserial
 ```
